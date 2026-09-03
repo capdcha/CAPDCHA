@@ -15,7 +15,7 @@
         input[type="text"]:focus { outline: none; border-color: #3b82f6; }
         #qr-box { margin: 1.5rem auto; padding: 1rem; background: white; border: 2px dashed #e0e0e0; border-radius: 8px; min-height: 128px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
         #qr-box.has-qr { border-style: solid; }
-        #qr-svg { transition: opacity 1s ease-in-out; width: 100%; }
+        #qr-svg { transition: opacity 300ms ease-in-out; width: 100%; }
         #qr-svg svg { width: 100%; height: auto; max-height: 70vh; }
         #qr-svg.hidden { opacity: 0; }
         .btn { background: #3b82f6; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-size: 1rem; cursor: pointer; }
@@ -48,7 +48,7 @@
         var ECL = ['L', 'M', 'Q', 'H'];
         var COUNTDOWN_DIGITS = ['05', '04', '03', '02', '01', '00'];
         var DUR_PER_DIGIT = 1000;
-        var FADE_MS = 1000;
+        var FADE_MS = 300;
 
         var idx = 0;
         var cycleTimer = null;
@@ -76,9 +76,9 @@
             var moduleCount = Math.round(w / 6);
             var qmod = w / moduleCount;
 
-            var sqX = 7 * qmod;
-            var sqY = 7 * qmod;
-            var sqSide = w - 14 * qmod;
+            var sqX = 8 * qmod;
+            var sqY = 8 * qmod;
+            var sqSide = w - 16 * qmod;
 
             var rect = document.createElementNS(SVG_NS, 'rect');
             rect.setAttribute('x', sqX);
@@ -94,7 +94,7 @@
             txt.setAttribute('text-anchor', 'middle');
             txt.setAttribute('dominant-baseline', 'central');
             txt.setAttribute('font-family', 'monospace, sans-serif');
-            txt.setAttribute('font-size', sqSide * 0.5 * 1.15);
+            txt.setAttribute('font-size', sqSide * 0.4 * 1.15);
             txt.setAttribute('font-weight', 'bold');
             txt.setAttribute('fill', '#333');
             txt.id = 'countdown-text';
@@ -155,15 +155,27 @@
             void wrapper.offsetHeight;
             wrapper.classList.remove('hidden');
 
-            cycleTimer = setTimeout(function() {
-                runCountdown(function() {
-                    wrapper.classList.add('hidden');
-                    cycleTimer = setTimeout(function() {
-                        idx = (idx + 1) % ECL.length;
-                        cycle();
-                    }, FADE_MS);
-                });
-            }, FADE_MS);
+            var count = 0;
+            var txt = box.querySelector('#countdown-text');
+
+            function tick() {
+                if (txt) txt.textContent = COUNTDOWN_DIGITS[count];
+                count++;
+
+                if (count >= COUNTDOWN_DIGITS.length) {
+                    countdownTimer = setTimeout(function() {
+                        wrapper.classList.add('hidden');
+                        cycleTimer = setTimeout(function() {
+                            idx = (idx + 1) % ECL.length;
+                            cycle();
+                        }, FADE_MS);
+                    }, DUR_PER_DIGIT - FADE_MS);
+                } else {
+                    countdownTimer = setTimeout(tick, DUR_PER_DIGIT);
+                }
+            }
+
+            tick();
         }
 
         function stopCycle() {
