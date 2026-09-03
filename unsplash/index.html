@@ -66,8 +66,8 @@
 </head>
 <body>
     <div class="bg-wrap">
-        <img id="bg-back" src="" alt="">
-        <img id="bg-front" src="" alt="">
+        <img id="bg-back" alt="">
+        <img id="bg-front" alt="">
     </div>
 
     <div class="container">
@@ -152,12 +152,9 @@
             var cx = w / 2;
             var cy = h / 2;
 
-            var moduleCount = Math.round(w / 6);
-            var safeModules = moduleCount - 18;
-            if (safeModules < 1) safeModules = 1;
-            var sqSide = safeModules * 6;
-            var sqX = 9 * 6;
-            var sqY = 9 * 6;
+            var sqSide = w * 0.2;
+            var sqX = cx - sqSide / 2;
+            var sqY = cy - sqSide / 2;
 
             var rect = document.createElementNS(SVG_NS, 'rect');
             rect.setAttribute('x', sqX);
