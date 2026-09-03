@@ -144,35 +144,15 @@
         }
 
         function addCountdown(svgNode) {
-            var vb = svgNode.getAttribute('viewBox');
-            if (!vb) return;
-            var p = vb.split(/[\s,]+/);
-            var w = parseFloat(p[2]);
-            var h = parseFloat(p[3]);
-            var cx = w / 2;
-            var cy = h / 2;
-
-            var sqSide = w * 0.2;
-            var sqX = cx - sqSide / 2;
-            var sqY = cy - sqSide / 2;
-
-            var rect = document.createElementNS(SVG_NS, 'rect');
-            rect.setAttribute('x', sqX);
-            rect.setAttribute('y', sqY);
-            rect.setAttribute('width', sqSide);
-            rect.setAttribute('height', sqSide);
-            rect.setAttribute('fill', 'white');
-            svgNode.appendChild(rect);
-
             var txt = document.createElementNS(SVG_NS, 'text');
-            txt.setAttribute('x', cx);
-            txt.setAttribute('y', cy);
+            txt.setAttribute('x', 21);
+            txt.setAttribute('y', 21);
             txt.setAttribute('text-anchor', 'middle');
             txt.setAttribute('dominant-baseline', 'central');
             txt.setAttribute('font-family', 'monospace, sans-serif');
-            txt.setAttribute('font-size', sqSide * 0.6);
+            txt.setAttribute('font-size', 10);
             txt.setAttribute('font-weight', 'bold');
-            txt.setAttribute('fill', '#333');
+            txt.setAttribute('fill', 'white');
             txt.id = 'countdown-text';
             txt.textContent = '05';
             svgNode.appendChild(txt);
@@ -204,23 +184,6 @@
                 box.appendChild(lbl);
             }
             lbl.textContent = 'ECL: ' + ecl;
-        }
-
-        function runCountdown(onDone) {
-            var count = 0;
-            var txt = box.querySelector('#countdown-text');
-
-            function tick() {
-                if (count >= COUNTDOWN_DIGITS.length) {
-                    onDone();
-                    return;
-                }
-                if (txt) txt.textContent = COUNTDOWN_DIGITS[count];
-                count++;
-                countdownTimer = setTimeout(tick, DUR_PER_DIGIT);
-            }
-
-            tick();
         }
 
         function cycle() {
