@@ -73,8 +73,21 @@
             box-sizing: border-box;
             width: 100%;
         }
-        #qr-svg { transition: opacity 300ms ease-in-out; width: 100%; }
+        #qr-svg { position: relative; transition: opacity 300ms ease-in-out; width: 100%; }
         #qr-svg svg { width: 100%; height: auto; max-height: 70vh; }
+        #qr-svg img { width: 100%; height: auto; max-height: 70vh; }
+        #qr-svg .qr-countdown {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            font-family: 'Jura', monospace, sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #fff;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.85);
+            pointer-events: none;
+        }
         #qr-svg.hidden { opacity: 0; }
         .control-box {
             padding: 1rem 1.25rem;
@@ -263,11 +276,48 @@
 
         var SVG_NS = 'http://www.w3.org/2000/svg';
 
+        function detectMobile() {
+            if (window.matchMedia && window.matchMedia('(hover: none) and (pointer: coarse)').matches) {
+                return true;
+            }
+            return window.innerWidth <= 768;
+        }
+        var isMobile = detectMobile();
+
         function makeQR(str, ecl) {
             var qr = qrcode(0, ecl);
             qr.addData(str);
             qr.make();
             return qr.createSvgTag(6, 0);
+        }
+
+        function qrPngDataUrl(str, ecl) {
+            var qr = qrcode(0, ecl);
+            qr.addData(str);
+            qr.make();
+
+            var count = qr.getModuleCount();
+            var cell = 6;
+            var size = cell * count;
+
+            var canvas = document.createElement('canvas');
+            canvas.width = size;
+            canvas.height = size;
+            var ctx = canvas.getContext('2d');
+            if (!ctx) return null;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, size, size);
+
+            ctx.fillStyle = '#000000';
+            for (var r = 0; r < count; r++) {
+                for (var c = 0; c < count; c++) {
+                    if (qr.isDark(r, c)) {
+                        ctx.fillRect(c * cell, r * cell, cell, cell);
+                    }
+                }
+            }
+            return canvas.toDataURL('image/png');
         }
 
         function addCountdown(svgNode) {
@@ -285,14 +335,15 @@
             svgNode.appendChild(txt);
         }
 
-        function setQR(str, ecl) {
-            var tmp = document.createElement('div');
-            tmp.innerHTML = makeQR(str, ecl);
-            var svgNode = tmp.firstChild;
-            svgNode.removeAttribute('width');
-            svgNode.removeAttribute('height');
-            addCountdown(svgNode);
+        function addCountdownOverlay(wrapper) {
+            var span = document.createElement('span');
+            span.id = 'countdown-text';
+            span.className = 'qr-countdown';
+            span.textContent = '05';
+            wrapper.appendChild(span);
+        }
 
+        function setQR(str, ecl) {
             var wrapper = box.querySelector('#qr-svg');
 
             if (!wrapper) {
@@ -302,7 +353,23 @@
                 box.appendChild(wrapper);
             }
             wrapper.innerHTML = '';
-            wrapper.appendChild(svgNode);
+
+            if (isMobile) {
+                var img = document.createElement('img');
+                img.src = qrPngDataUrl(str, ecl);
+                img.alt = '';
+                wrapper.appendChild(img);
+                addCountdownOverlay(wrapper);
+            } else {
+                var tmp = document.createElement('div');
+                tmp.innerHTML = makeQR(str, ecl);
+                var svgNode = tmp.firstChild;
+                svgNode.removeAttribute('width');
+                svgNode.removeAttribute('height');
+                addCountdown(svgNode);
+
+                wrapper.appendChild(svgNode);
+            }
         }
 
         function cycle() {
