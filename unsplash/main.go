@@ -16,7 +16,7 @@ const unsplashAccessKey = "ajjFLji7SSrb6iQ01Et3Z9iHFq9CmSosMQkl1lK3Ha4"
 
 const (
 	cacheDir     = "img"
-	cacheCount   = 10
+	cacheCount   = 50
 	rateLimitErr = "Rate Limit Exceeded"
 )
 
@@ -140,31 +140,4 @@ func nextBackgroundHandler(w http.ResponseWriter, r *http.Request) {
 
 	imgData, err := io.ReadAll(imgResp.Body)
 	if err != nil {
-		http.Error(w, "failed to read image", http.StatusBadGateway)
-		return
-	}
-
-	saveToCache(imgData, contentType)
-
-	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Cache-Control", "public, max-age=86400")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-
-	w.Write(imgData)
-}
-
-func initCachedImages() {
-	if cachedImagesExist() {
-		log.Printf("using %s cached images", cacheDir)
-	}
-}
-
-func main() {
-	http.HandleFunc("/api/next-background", nextBackgroundHandler)
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "index.html")
-	})
-
-	fmt.Println("Server running on http://localhost:3002")
-	log.Fatal(http.ListenAndServe(":3002", nil))
-}
+		http.Error(w, "
