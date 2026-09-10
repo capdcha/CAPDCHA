@@ -78,11 +78,8 @@
         #qr-svg img { width: 100%; height: auto; max-height: 70vh; }
         #qr-svg .qr-countdown {
             position: absolute;
-            left: 50%;
-            top: 50%;
             transform: translate(-50%, -50%);
             font-family: 'Jura', monospace, sans-serif;
-            font-size: 18px;
             font-weight: 700;
             color: #fff;
             text-shadow: 0 1px 4px rgba(0,0,0,0.85);
@@ -335,10 +332,13 @@
             svgNode.appendChild(txt);
         }
 
-        function addCountdownOverlay(wrapper) {
+        function addCountdownOverlay(wrapper, pctX, pctY, fontSizePct) {
             var span = document.createElement('span');
             span.id = 'countdown-text';
             span.className = 'qr-countdown';
+            span.style.left = pctX + '%';
+            span.style.top = pctY + '%';
+            span.style.fontSize = fontSizePct + '%';
             span.textContent = '05';
             wrapper.appendChild(span);
         }
@@ -359,7 +359,13 @@
                 img.src = qrPngDataUrl(str, ecl);
                 img.alt = '';
                 wrapper.appendChild(img);
-                addCountdownOverlay(wrapper);
+                var qr = qrcode(0, ecl);
+                qr.addData(str);
+                qr.make();
+                var modCount = qr.getModuleCount();
+                var finderPct = 3.5 / modCount * 100;
+                var fontPct = 10 / (modCount * 6) * 100;
+                addCountdownOverlay(wrapper, finderPct, finderPct, fontPct);
             } else {
                 var tmp = document.createElement('div');
                 tmp.innerHTML = makeQR(str, ecl);
